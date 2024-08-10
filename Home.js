@@ -5,15 +5,18 @@ import {
   View,
   TextInput,
   Button,
-  FlatList,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function App() {
+export default function Home() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("All");
+  const navigation = useNavigation();
 
   const addTodo = () => {
     if (title && description) {
@@ -26,15 +29,18 @@ export default function App() {
     }
   };
 
-  const changeStatus = (id, status) => {
+  const handleTodoPress = (todo) => {
+    navigation.navigate("Details", { todo });
+  };
+
+  const markAsDone = (id) => {
     setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, status } : todo))
+      todos.map((todo) => (todo.id === id ? { ...todo, status: "done" } : todo))
     );
   };
 
-  const getFilteredTodos = () => {
-    if (filter === "All") return todos;
-    return todos.filter((todo) => todo.status === filter.toLowerCase());
+  const removeTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   return (
@@ -53,7 +59,31 @@ export default function App() {
         onChangeText={setDescription}
       />
       <Button title="Add Todo" onPress={addTodo} color="#6200EE" />
-      <View style={styles.divider} />
+      <ScrollView style={styles.todosContainer}>
+        {todos
+          .filter((todo) => filter === "All" || todo.status === filter)
+          .map((todo) => (
+            <View key={todo.id} style={styles.todoItem}>
+              <TouchableOpacity onPress={() => handleTodoPress(todo)}>
+                <Text style={todo.status === "done" ? styles.done : null}>
+                  {todo.title}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.icons}>
+                <TouchableOpacity onPress={() => markAsDone(todo.id)}>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={24}
+                    color="green"
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeTodo(todo.id)}>
+                  <Ionicons name="trash-outline" size={24} color="red" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+      </ScrollView>
       <View style={styles.filterContainer}>
         {["All", "active", "done"].map((status) => (
           <TouchableOpacity key={status} onPress={() => setFilter(status)}>
@@ -67,29 +97,6 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
-      <FlatList
-        data={getFilteredTodos()}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.todoItem}>
-            <Text style={styles.todoTitle}>{item.title}</Text>
-            <Text style={styles.todoDescription}>{item.description}</Text>
-            {item.status === "active" ? (
-              <Button
-                title="Mark as Done"
-                onPress={() => changeStatus(item.id, "done")}
-                color="#03DAC5"
-              />
-            ) : (
-              <Button
-                title="Mark as Active"
-                onPress={() => changeStatus(item.id, "active")}
-                color="#BB86FC"
-              />
-            )}
-          </View>
-        )}
-      />
     </View>
   );
 }
@@ -97,12 +104,9 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    alignContent: "center",
-    marginTop: 20,
+    justifyContent: "flex-start",
+    alignItems: "center",
     padding: 20,
-    gap: 8,
     backgroundColor: "#ffffff",
   },
   title: {
@@ -118,16 +122,26 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
+    width: "100%",
   },
   divider: {
     height: 1,
     backgroundColor: "#E0E0E0",
     marginVertical: 20,
+    width: "100%",
+  },
+  todosContainer: {
+    flex: 1,
+    width: "100%",
+    marginBottom: 10,
   },
   filterContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 20,
+    width: "100%",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderColor: "#E0E0E0",
   },
   filterButton: {
     padding: 10,
@@ -138,23 +152,23 @@ const styles = StyleSheet.create({
     color: "#6200EE",
   },
   selectedFilter: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "#6200EE",
+    color: "#ffffff",
   },
   todoItem: {
-    padding: 20,
+    padding: 15,
+    borderBottomColor: "#ccc",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 5,
-    marginVertical: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  todoTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333333",
+  done: {
+    textDecorationLine: "line-through",
+    color: "#d3d3d3",
   },
-  todoDescription: {
-    fontSize: 14,
-    color: "#666666",
+  icons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
 });
