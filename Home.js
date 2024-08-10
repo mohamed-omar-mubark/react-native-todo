@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <ImageBackground
       source={{
-        uri: "https://images.pexels.com/photos/1723637/pexels-photo-1723637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        uri: "https://images.pexels.com/photos/4466461/pexels-photo-4466461.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       }}
       style={styles.backgroundImage}>
       <View style={styles.overlay}>
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
     padding: 20,
     justifyContent: "flex-start",
     alignItems: "center",
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   done: {
     textDecorationLine: "line-through",
-    color: "#d3d3d3",
+    color: "#000",
   },
   icons: {
     flexDirection: "row",
